@@ -50,7 +50,24 @@ const Calculator = () =>{
         let tD = parseFloat(tempDiff);
         let fT = parseFloat(film);
         let lF = parseFloat(lenFlow);
-        return {display: true, hTCoff: 1, hTRate: 1, reyNum: 1, pranNum: 1};
+
+        if (fProps != null){
+            var hTC, hTR, rN, pN;
+            let nu, vel = fR / (fProps.rho * fT);
+
+            rN = fProps.rho * vel * lF / fProps.mu;
+            pN = fProps.cp * fProps.mu / fProps.k;
+            if (rN < 1000)
+                nu = 0.664 * (rN**0.5) * (pN**(1/3));
+            else if (rN >= 1000 && rN <= 5000)
+                nu = 0.023 * (rN**0.8) * (pN**(1/3));
+            else
+                nu = 0.027 * (rN**0.8) * (pN**(1/3));
+            hTC = nu * fProps.k / lF;
+            hTR = fR * fProps.cp * tD;
+            return {display: true, hTCoff: hTC, hTRate: hTR, reyNum: rN, pranNum: pN}; 
+        } else
+            return {display: false, hTCoff: 1, hTRate: 1, reyNum: 1, pranNum: 1};
     };
     return(
         <View>
