@@ -7,7 +7,7 @@ import './global.css';
 export default function Index() {
   const router = useRouter();
   const monitorFile = async() => {
-    const path = FileSystem.documentDirectory + 'history.txt';
+    const path = FileSystem.documentDirectory + 'history.bin';
     try{
       const file = await FileSystem.getInfoAsync(path);
       if (!file.exists)

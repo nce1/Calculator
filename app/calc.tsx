@@ -46,10 +46,23 @@ const Calculator = () =>{
         const results = calculateResults(inputs.flowRate, inputs.tempDiff, inputs.film, inputs.lenFlow);
         setResults(results);
     };
-    const storeCalculations = async() => {
-        const path = FileSystem.documentDirectory + 'history.txt';
+    /* Writes to the local file */
+    const storeCalculations = async(results: object) => {
+        const path = FileSystem.documentDirectory + 'history.bin';
+        const jResults = JSON.stringify(results);
+        let hArray = [];
         try{
-            await FileSystem.writeAsStringAsync(path, "banana");            
+            const binContent = await FileSystem.readAsStringAsync(path, {
+            encoding: FileSystem.EncodingType.UTF8,
+            });
+            if (binContent.trim().length > 0){
+                let parsed = JSON.parse(binContent);
+                if (Array.isArray(parsed))
+                    hArray = parsed;
+            }
+            hArray.push(results);
+            console.log(hArray);
+            await FileSystem.writeAsStringAsync(path, JSON.stringify(hArray), {encoding: FileSystem.EncodingType.UTF8});            
         } catch(error){
             console.log(error);
         }
@@ -61,7 +74,6 @@ const Calculator = () =>{
         let tD = parseFloat(tempDiff);
         let fT = parseFloat(film);
         let lF = parseFloat(lenFlow);
-        storeCalculations();
         if (fProps != null){
             var hTC, hTR, rN, pN;
             let nu, vel = fR / (fProps.rho * fT);
@@ -76,6 +88,8 @@ const Calculator = () =>{
                 nu = 0.027 * (rN**0.8) * (pN**(1/3));
             hTC = nu * fProps.k / lF;
             hTR = fR * fProps.cp * tD;
+            /* Suggestion: Include other calculation details */
+            storeCalculations({hTCoff: hTC, hTRate: hTR, reyNum: rN, pranNum: pN});
             return {display: true, hTCoff: hTC, hTRate: hTR, reyNum: rN, pranNum: pN}; 
         } else
             return {display: false, hTCoff: 1, hTRate: 1, reyNum: 1, pranNum: 1};

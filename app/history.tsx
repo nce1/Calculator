@@ -7,18 +7,18 @@ const History = () =>{
 
     React.useEffect(() => {
       const readFile = async () => {
-        const path = FileSystem.documentDirectory + 'history.txt';
+        const path = FileSystem.documentDirectory + 'history.bin';
         try {
-          const file = await FileSystem.readAsStringAsync(path, {
+          const binContent = await FileSystem.readAsStringAsync(path, {
             encoding: FileSystem.EncodingType.UTF8,
           });
-          setHistoryContent(file);
+          /* Suggestion: Present content properly by modifying array before stringify */
+          const pContent = JSON.stringify(JSON.parse(binContent));
+          setHistoryContent(pContent);
         } catch (error) {
           console.log('Error reading file:', error);
           setHistoryContent('No history available.');
         }
-        console.log('historyContent:', historyContent, "End");
-
       };
       readFile();
     }, []);
