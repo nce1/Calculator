@@ -1,6 +1,7 @@
-import {StyleSheet, Text, View, TextInput, Button} from 'react-native'
+import {StyleSheet, Text, View, ScrollView, TextInput, Button} from 'react-native'
 import {Picker} from "@react-native-picker/picker";
 import react, {useState} from 'react'
+import * as FileSystem from 'expo-file-system';
 
 const Calculator = () =>{
     /* Custom types for the fluid properties and results*/
@@ -40,17 +41,27 @@ const Calculator = () =>{
         Air: {cp: 1005, rho: 1.225, mu: 0.0000181, k: 0.0262},
         Nitrogen: { cp: 1040, rho: 1.251, mu: 0.0000179, k: 0.0258},
     };
+    /* Updates the state results */
     const getResults = () => {
         const results = calculateResults(inputs.flowRate, inputs.tempDiff, inputs.film, inputs.lenFlow);
         setResults(results);
     };
+    const storeCalculations = async() => {
+        const path = FileSystem.documentDirectory + 'history.txt';
+        try{
+            await FileSystem.writeAsStringAsync(path, "banana");            
+        } catch(error){
+            console.log(error);
+        }
+    }
+    /* does the calculation */
     function calculateResults(flowRate: string, tempDiff: string, film: string, lenFlow: string){
         const fProps = fluidProps[selectedFluid];
         let fR = parseFloat(flowRate);
         let tD = parseFloat(tempDiff);
         let fT = parseFloat(film);
         let lF = parseFloat(lenFlow);
-
+        storeCalculations();
         if (fProps != null){
             var hTC, hTR, rN, pN;
             let nu, vel = fR / (fProps.rho * fT);
@@ -70,8 +81,8 @@ const Calculator = () =>{
             return {display: false, hTCoff: 1, hTRate: 1, reyNum: 1, pranNum: 1};
     };
     return(
-        <View>
-            <Text className="samp">Calculator</Text>
+        <ScrollView>
+            <Text style={styles.title}>Calculator</Text>
             <Picker itemStyle={{color: 'blue'}} selectedValue={selectedFluid} onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}>
                 <Picker.Item label="Select an option" value=""></Picker.Item>
                 <Picker.Item label="Water" value="Water"></Picker.Item>
@@ -98,8 +109,16 @@ const Calculator = () =>{
                   Prandtl Number: {results.pranNum}
             </Text>
             )}
-        </View>
+        </ScrollView>
     )
 }
 export default Calculator
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    container: {
+        alignItems: 'center'
+    },
+    title: {
+        fontWeight: 'bold',
+        fontSize: 18
+    }
+})
